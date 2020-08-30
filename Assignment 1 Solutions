@@ -1,0 +1,183 @@
+problem A-1
+Q.1) Ans. Declarations under main function are there only in Gimple.
+               Multiple variables declared on the same line are on separate lines
+               in gimple file.
+               Global declaration int Z is not there in gimple file.It is used directly in the
+               code.
+Q.2) Ans. The complex expression is broken down as follows :
+               c = a*b +25
+               _1 = a * b
+               c = _1 + 25
+               Here complex operands are factored into temporaries.
+               So we can say that gimple statement can have at most
+               one operation.
+               So when there is complex operation involving more than one operators
+               it's operands are factored into temporaries.
+Q.3) Ans. Floats and double are represented scientific notation.
+               When float/double is assigned to integer type conversion takes place
+               explicitly.
+Q.4) Ans. Global variables are in main memory.
+               Local variables are in register memory.
+               So an store operation is required to use global variable locally.
+               A gimple statement can have one operation only at a time.
+               So in statement like [q = Z] or [Z = p] as only one operation is there
+               so no temporary is introduced.
+               But for statement [Z = Z  + 1] there are two operations are there
+               first Global to local and then increment therefore a temporary for global
+               variable is introduced.Global temporaries are
+               named similar to the global variable but with a numeric suffix.
+A-2 Solutions
+Q.1) Ans. The if-else block is broken down into different parts.
+               Each part has some labels.
+               Conditional go-tos have if or else written before them.
+               Unconditional go-tos start with goto
+Q.2) Ans. The control-flow graph dump shows distinct basic blocks which are
+               named sequentially.
+               f ()
+                {
+                  int c;
+                  int b;
+                  int a;
+                  int Z.0;
+                  int D.1715;
+
+                <bb 2>:
+                  a = Z;
+                  if (a <= 9)
+                    goto <bb 3>;
+                  else
+                    goto <bb 4>;
+
+                <bb 3>:
+                  b = 5;
+                  c = 17;
+                  goto <bb 6>;
+
+                <bb 4>:
+                  b = 6;
+                  c = 20;
+                  if (a == 0)
+                    goto <bb 5>;
+                  else
+                    goto <bb 6>;
+
+                <bb 5>:
+                  c = 0;
+
+                <bb 6>:
+                  D.1715 = b * 10;
+                  Z.0 = D.1715 + c;
+                  Z = Z.0;
+                  return;
+
+                }
+Answers A-3
+Q.1) Ans. Basic blocks 2, 3 and 4 correspond to the while-loop. A while loop
+               is nothing but a set of basic blocks with conditional control flow.
+               Difference between while loop block and if-else block is that
+               previous block can be executed in while loop blocks.
+Q.2) Ans. A for loop is same as a while loop with the initializer.
+               In gimple initializer is in separate block then block of the body of
+               the loop. The increment part is at the end of the body with the conditional
+               statement.
+               For loop is used when we know number of itertations to be run in advance.
+               While loop is used when we don't know number of iterations to be run.
+               
+ Answers to A-4
+Q.1) Ans. It is split into declaration and rest part is included into the procedure.
+               Array elements are assigned individually i.e. the initialization is split
+               into multiple lines. As gimple statement have one operation at a time.
+Q.2) Ans. As stated in previous question gimple handles only one operation in
+               a statement.
+               In statement a[i] = b[i] two operations read and write are there
+               therefore this line is broken down into two separate lines.
+               One to read and other to write.
+Q.3) Ans. CLOBBER statements are used for address-escaped variables. It is an
+               annotation to signify that the scope of this address-escaped
+               variable has ended.
+
+Answers to A-5
+Q.1) Ans. Local variables are suffixed with an unique number as values are assigned.
+               The suffix refers the usage of the variable.
+               Variables which are used before their value assignment are suffixed with
+               D.
+Q.2) Ans. The point in the CFG in  which the paths of the two assignments
+               to variable `a'  and `b' merge is given by name PHI.
+               A PHI node creates a new assignment.
+               PHI statements don't require semicolons after each line.
+               Statement starts with word PHI and later is enclosed in triangular
+               brackets.
+               Assignment Statement starts with a #
+Q.3) Ans. A switch statement can result in a merge of more than two paths (and
+               hence possibly more than two assignments). Consider:
+
+            int main()
+            {
+                int a, b;
+                switch (a)
+                {
+                    case 1:
+                        b = 2;
+                        break;
+                    case 2:
+                        b = 3;
+                        break;
+                    case 3:
+                        b = 4;
+                    case 4:
+                        b = 5;
+                        break;
+                    case 5:
+                    case 6:
+                        b = 6;
+                        break;
+                    default:
+                        b = 7;
+                }
+                return b;
+            }
+
+            In this case  the PHI node at  the end of the  switch statement will
+            merge multiple assignments such as:
+
+            # b_1 = PHI <b_4(3), b_5(4), b_7(6), b_8(7), b_9(8)>
+/* A-6 Solution */
+
+#include <stdio.h>
+int main(){
+    int i, j;
+    for(i = 2; i <= 100; i++) {
+        for(j = 2; j < i; j++) {
+            if(i % j == 0)
+                break;
+        }
+        if(i == j) {
+            printf("%d \n", i);
+        }
+   }
+}
+
+B-1 Answers
+Q.1) Ans. The definition of the function is there because it is called from
+               another file.
+Q.2) Ans. If the function was declared with the "static" keyword (which, in C,
+               is something  like "private  to this file  only") then  the function
+               body will disappear if there is no caller within the file.
+B-2 Answers
+Q.1) Ans. The loop will be removed entirely.
+               constant propogation will allow GCC to compute  the final  value of a.
+
+B-3 Answers
+Q.1) Ans. Variable 'a' can take the values  4 to 99. Since, the 'if' condition
+               will never be  true for the give loop  bounds, [b = b +  2] is never
+               executed.
+               Hence it can be removed from the code as it is useless.
+               
+B-4 Answers
+Q.1) Ans. In the original code a+c is computed two times.
+               After the FRE pass it was computed once because use of
+               temporary variable.
+Q.2) Ans. By comparing the file B-4.c.231t.optimized with B-4.c.033t.fre1 we
+                  can say that no more optimizations have occured.
+Q.3) Ans."return  b" is required to make the computation of variable 'b'
+          meaningful
