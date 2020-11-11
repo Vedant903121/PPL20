@@ -1,0 +1,20 @@
+teach_subs(t1,math).
+teach_subs(t2,math).
+teach_subs(t3,dsa).
+teach_subs(t4,ppl).
+teach_subs(t5,dld).
+teach_subs(t6,dtl).
+
+has_subs(math_dept,math).
+has_subs(comp_dept,dsa).
+has_subs(comp_dept,ppl).
+has_subs(comp_dept,dtl).
+
+has_studs(comp_dept,s1).
+has_studs(comp_dept,s2).
+
+has_fac(D,F):- teach_subs(F,S),has_subs(D,S).
+
+
+studies_sub(ST,SB):- has_studs(D,ST),has_subs(D,SB).
+studies_under(S,F):- has_subs(D,SB),has_studs(D,S),teach_subs(F,SB).
